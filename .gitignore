@@ -24,3 +24,9 @@ build/
 # System files
 Thumbs.db
 desktop.ini
+
+# Media files
+/media/
+
+# Log files
+*.log
