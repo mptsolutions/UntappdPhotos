@@ -2,6 +2,7 @@ import os
 from config import logger, SCREEN_WIDTH, SCREEN_HEIGHT, MEDIA_DIR, BACKGROUND_COLOR, DISPLAY_DURATION
 from time import sleep
 
+# Hide the default pygame support prompt
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 from pygame import (
     FULLSCREEN, DOUBLEBUF, NOFRAME, HWSURFACE, QUIT, KEYDOWN, K_ESCAPE, 
@@ -9,15 +10,30 @@ from pygame import (
 )
 
 def init_pygame():
+    """
+    Initialize pygame, set up the display window, and hide the mouse cursor.
+
+    Returns:
+        screen (pygame.Surface): The main display surface.
+    """
     init()
     mouse.set_visible(False)
     display.init()
-    screen = display.set_mode((720, 720), FULLSCREEN | DOUBLEBUF | NOFRAME | HWSURFACE)
+    screen = display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), FULLSCREEN | DOUBLEBUF | NOFRAME | HWSURFACE)
     screen.fill(BACKGROUND_COLOR)
     display.update()
     return screen
 
 def load_images_from_directory(directory=MEDIA_DIR):
+    """
+    Load all .jpg images from the specified directory, center them on the screen.
+
+    Args:
+        directory (str): Path to the directory containing images.
+
+    Returns:
+        images (list): List of tuples (image_surface, image_rect, filename).
+    """
     images = []
     for filename in os.listdir(directory):
         if filename.lower().endswith('.jpg'):
@@ -31,12 +47,27 @@ def load_images_from_directory(directory=MEDIA_DIR):
     return images
 
 def display_image(screen, images, image_index):
+    """
+    Display the image at the given index on the screen.
+
+    Args:
+        screen (pygame.Surface): The main display surface.
+        images (list): List of loaded images.
+        image_index (int): Index of the image to display.
+    """
     cur_image, cur_image_rect, filename = images[image_index]
     screen.blit(cur_image, cur_image_rect)
     display.update()
     logger.debug(f"SET IMAGE {image_index}: {filename}")
 
 def main():
+    """
+    Main loop for the Untappd Photos display application.
+    Initializes pygame, loads images, and cycles through them at intervals.
+    """
+    
+    logger.info("Starting Untappd Photos application.")
+
     # Initialize Pygame and get a screen object
     screen = init_pygame()
 
@@ -51,13 +82,15 @@ def main():
     display_image(screen, images, current_image_index)
 
     running = True
-    image_time = time.get_ticks()
+    image_time = time.get_ticks()  # Track time for image switching
 
     while running:
+        # Handle quit and escape key events
         for cur_event in event.get():
             if cur_event.type == QUIT or cur_event.type == KEYDOWN and cur_event.key == K_ESCAPE:
                 running = False
 
+        # Check if it's time to switch to the next image
         now = time.get_ticks()
         if now - image_time >= DISPLAY_DURATION:
             current_image_index = current_image_index + 1
@@ -66,7 +99,7 @@ def main():
             display_image(screen, images, current_image_index)
             image_time = now
 
-        sleep(0.1)
+        sleep(0.1)  # Small delay to reduce CPU usage
     quit()
 
 if __name__ == "__main__":
