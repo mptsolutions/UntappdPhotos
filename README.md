@@ -1,30 +1,41 @@
 # Untappd Photos
+
 ### This is a project for building a small screen that displays user photos from [Untappd](https://untappd.com/). It uses a [Raspberry Pi Zero 2 W](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/) and the <i>pre-2021</i> version of the [HyperPixel 4 Square](https://shop.pimoroni.com/products/hyperpixel-4-square?variant=30138251477075).
 
+Note: for now it is necessary to manually copy photos into a local directory. Pulling from Untappd directly is still just a goal.
+
 ## Contents
-- [Necessary Hardware](#necessary-hardware)
-- [Setup](#setup)
-- [Very Helpful Example Code](#very-helpful-example-code)
+
+* [Necessary Hardware](#necessary-hardware)
+* [Setup](#setup)
+* [Run it](#run-it)
+* [Very Helpful Example Code](#very-helpful-example-code)
 
 ## [Necessary Hardware](#necessary-hardware)
+
 * [Raspberry Pi Zero 2 W](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/)
+  * The original Raspberry Pi Zero will work too, but everything will take longer because it's slow.
 * [HyperPixel 4 Square](https://shop.pimoroni.com/products/hyperpixel-4-square?variant=30138251477075)
-  * <i>Important Note</i>: There are two versions of the HyperPixel 4 <i>Square</i>. The version that was manufactured before 2021 is apparently different in some way that is very important but impossible to tell by looking at it. All the recent instructions for working with the screen assume you have the newer version, but if you have the older one none of those instruction will actually work. I do not have the newer one, so <u>this project has been set up using the pre-2021 hardware</u>. That is why I am using RaspberryPi OS <i>Bullseye</i>. I did not want to use Olde Worlde software, but apparently I bought [Olde Worlde hardware](https://www.pishop.ca/product/hyperpixel-4-0-square-hi-res-display-for-raspberry-pi-non-touch/?searchid=0&search_query=hyperpixel+square).
-* [3D Printed stand](https://cults3d.com/en/3d-model/gadget/enclosure-base-for-hyperpixel-4-0-square-non-touch-and-raspberry-pi-zero)
+  * <i>Important Note</i>: There are two versions of the HyperPixel 4 <i>Square</i>. The version that was manufactured before 2021 is apparently different in some way that is very important but impossible to tell by looking at it. All the recent instructions for working with the screen assume you have the newer version, but if you have the older one none of those instruction will actually work. I do not have the newer one, so <u>this project has been set up using the pre-2021 hardware</u>. That is why I am using Raspberry Pi OS <i>Bullseye</i>. I did not want to use Olde Worlde software, but apparently I bought [Olde Worlde hardware](https://www.pishop.ca/product/hyperpixel-4-0-square-hi-res-display-for-raspberry-pi-non-touch/?searchid=0&search_query=hyperpixel+square).
+* [3D Printed Frame](https://cults3d.com/en/3d-model/gadget/enclosure-base-for-hyperpixel-4-0-square-non-touch-and-raspberry-pi-zero)
+  * Technically a frame is not <i>necessary</i> but it's going to be pretty hard to use the screen without one.
 
 ## [Setup](#setup)
+
 ### Steps
-- [Hardware](#hardware)
-- [RaspberryPi OS](#raspberrypi-os)
-- [HyperPixel Driver](#hyperpixel-driver)
-- [Python Project](#python-project)
+
+* [Hardware](#hardware)
+* [Raspberry Pi OS](#raspberrypi-os)
+* [HyperPixel Driver](#hyperpixel-driver)
+* [Python Project](#python-project)
 
 ### [Hardware](#hardware)
-HyperPixels are hyper-sensitive. If yours wasn't broken when you took it out of the box, it will probably be broken soon.  
-Try to connect the Raspberry Pi to the screen as carefully as possible. You have to avoid pushing on the screen itself. No, that isn't a joke. Apparently you are supposed to push using magic.
 
-### [RaspberryPi OS](#raspberrypi-os)
-Setup a new SD card with RaspberryPi OS Bullseye. When I created this, Bullseye was the "legacy" option in the Raspberry Pi Imager so it was easy, but if you live in the future it might take more effort to track down.
+HyperPixels are hyper-sensitive so if yours wasn't broken when you took it out of the box, it will probably be broken soon. Try to connect the Raspberry Pi to the screen as carefully as possible. You have to avoid pushing on the screen itself. No, that isn't a joke. Apparently you are supposed to push using magic.
+
+### [Raspberry Pi OS](#raspberrypi-os)
+
+Setup a new SD card with Raspberry Pi OS Bullseye. When I created this, Bullseye was the "legacy" option in the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) so it was easy, but if you live in the future it might take more effort to track down.
 
 Setup the Raspberry Pi like normal and once the OS running, do the usual updates:
 
@@ -34,15 +45,17 @@ $ sudo apt upgrade -y
 ```
 
 ### [HyperPixel Driver](#hyperpixel-driver)
+
 This is where life gets hard. Don't waste your time with the easy instructions on [the Pimoroni website](https://shop.pimoroni.com/products/hyperpixel-4-square?variant=30138251477075) - those are for the chosen ones with the newer version of the screen.  
 
 Instead you are going to want to run the below command from somewhere convenient like the ```home``` directory:
 
 ```bash
+$ cd ~/
 $ curl -sSL get.pimoroni.com/hyperpixel4-legacy | bash
 ```
 
-This is going to walk you through some confusing nonsense that starts with confirming that you really, truely, sincerely, do want that screen you paid for to work:
+The script is going to walk you through some confusing nonsense that starts with confirming that you really, truely, sincerely, do want that screen you paid for to work:
 
 ```txt
 This script will install everything needed to use
@@ -65,7 +78,8 @@ https://github.com/pimoroni/hyperpixel4/issues/177
 
 Do you wish to continue? [y/N]
 ```
-Next you need to choose one of the below options. Even though you are not using the "Pi 4 / Pi 400", you should enter "```1```" anyway. If you got this far and only just clued-in that this project uses the square screen, stop now - none of this nonsense isn't need for the rectangle version.
+
+Next you need to choose one of the below options. Even though you are not using the "Pi 4 / Pi 400", you should enter "```1```" anyway. If you got this far and only just clued-in that this project uses the square screen, stop now - none of this nonsense is need for the rectangle version. And if for some reason you decided to use the original Raspberry Pi Zero then I guess you want to choose "```3```".
 
 ```
 Pick your HyperPixel 4 and Raspberry Pi combo below:
@@ -86,7 +100,8 @@ let us know: https://github.com/pimoroni/hyperpixel4
 Enter an option [0-4]:
 ```
 
-The next question is a trick. It doesn't matter when you <i>purchased</i> your screen - I bought mine in 2025. Enter "```1```" again to select the Olde Worlde version.
+The next question is a trick. It doesn't matter when you <i>purchased</i> your screen - I bought mine in 2025 and it is still most definitely the pre-2021 version. Enter "```1```" again to select the Olde Worlde version. If you don't think you have the old version, you've wasted a lot of time here.
+
 ```
 When did you purchase your HyperPixel Square?
  0: 2021 or later
@@ -99,6 +114,7 @@ Enter an option [0-1]:
 ```
 
 And finally, confirm that you were paying attention the whole time.
+
 ```txt
 Installing Weirdly Square for Pi 4 / Pi 400
 for HP manufactured 2020 or earlier.
@@ -109,15 +125,15 @@ The script will run, install some files, and update some configs. If it outputs 
 
 On the other hand, if it pretends like all is well, continue on...
 
-The script lies - it doesn't update everything it needs to. It <i>could</i> if they wanted it to, but it just doesn't. If you were to reboot now, you would experience the delight of seeing the Raspberry Pi OS splash screen pop up in all its glory - only to be replaced by a blank screen that never goes away.
+The script lies - it doesn't update everything it needs to. It <i>could</i> if they wanted it to, but it just doesn't. If you were to reboot now, you would experience the delight of seeing the Raspberry Pi OS splash screen pop up in all its glory - only to be replaced by a blank screen that never goes away. And then you would suspect that your screen is broken, consider whether or not the money you spent is worth the hassle of trying to get an exchange, and wonder why this always happens to you. Then you would read all of the [Links I Found ~~Frustrating~~ Useful](#links-i-found-frustrating) and maybe figure it out.
 
-To fix this, you need to manually edit one more line in ```/boot/config.txt```. Open the file in ```nano```.
+To fix this, you actually only need to manually edit one more line in ```/boot/config.txt```. Open the file in ```nano```.
 
 ```bash
 $ sudo nano /boot/config.txt
 ```
 
-Then make sure that the ```dtoverlay``` line shown below is commented out. There might multiple lines that start with ```dtoverlay``` but you only want to mess with the one that actually looks like below.
+Make sure that the ```dtoverlay``` line shown below is commented out. There might multiple lines that start with ```dtoverlay``` but you only want to mess with the one that actually looks like below.
 
 ```txt
 # Enable DRM VC4 V3D driver
@@ -128,7 +144,7 @@ Now you can reboot and your Raspberry Pi should start up normally with a nice ti
 
 Maybe. At least it worked for me. Good luck.
 
-#### Links I Found ~~Frustrating~~ Useful
+#### [Links I Found ~~Frustrating~~ Useful](#links-i-found-frustrating)
 
 I read all of this madness. Some of it was helpful and it's a good place to start if you you got this far and your screen still doesn't display.
 
@@ -152,12 +168,39 @@ $ git clone https://github.com/mptsolutions/UntappdPhotos.git
 ```
 
 If you are happy to have your photos live in ```./media/photos/```, and for them to rotate every 10 seconds, then you probably don't need to adjust anything. But you can verify all the configurable settings in ```configs.py```.
+
 ```bash
 $ nano config.py
 ```
 
+You will probably want to create a virtual environment to run in.
 
+```bash
+$ cd ~/
+$ python -m venv untappd_photos_env --system-site-packages
+```
+
+## [Run it](#run-it)
+
+Just run the script.
+
+```bash
+$ cd ~/
+$ source untappd_photos_env/bin/activate
+$ python main.py
+```
+
+If you are doing all this rightfully through a remote ```SSH``` session, you'll probably need to manually set the display when you run the script.
+
+```bash
+$ cd ~/
+$ source untappd_photos_env/bin/activate
+$ DISPLAY=:0.0 python main.py
+```
 
 ## [Very Helpful Example Code](#very-helpful-example-code)
-* [Lupin3000/HyperPixel-4.0-Square](https://github.com/Lupin3000/HyperPixel-4.0-Square)
 
+I took inspiration for the actual Python code from a few different places.
+
+* [ClemensAtElektor/HyperPixel2r](https://github.com/ClemensAtElektor/HyperPixel2r)
+* [Lupin3000/HyperPixel-4.0-Square](https://github.com/Lupin3000/HyperPixel-4.0-Square)
