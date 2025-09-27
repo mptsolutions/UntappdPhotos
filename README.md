@@ -37,7 +37,7 @@ HyperPixels are hyper-sensitive so if yours wasn't broken when you took it out o
 
 Setup a new SD card with Raspberry Pi OS Bullseye. When I created this, Bullseye was the "legacy" option in the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) so it was easy, but if you live in the future it might take more effort to track down.
 
-Setup the Raspberry Pi like normal and once the OS running, do the usual updates:
+Setup the Raspberry Pi like normal and once the OS is running, do the usual updates:
 
 ```bash
 $ sudo apt update -y
@@ -146,7 +146,7 @@ Maybe. At least it worked for me. Good luck.
 
 #### [Links I Found ~~Frustrating~~ Useful](#links-i-found-frustrating)
 
-I read all of this madness. Some of it was helpful and it's a good place to start if you you got this far and your screen still doesn't display.
+I read all of this madness. Some of it was helpful and it's a good place to start if you got this far and your screen still doesn't display.
 
 * https://github.com/pimoroni/hyperpixel4
 * https://github.com/pimoroni/hyperpixel4/issues/223
