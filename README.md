@@ -9,6 +9,7 @@ Note: for now it is necessary to manually copy photos into a local directory. Pu
 * [Necessary Hardware](#necessary-hardware)
 * [Setup](#setup)
 * [Run it](#run-it)
+* [Coming Soon](#coming-soon)
 * [Very Helpful Example Code](#very-helpful-example-code)
 
 ## [Necessary Hardware](#necessary-hardware)
@@ -212,6 +213,13 @@ $ DISPLAY=:0.0 python ./UntappdPhotos/main.py
 ```
 
 If all went well, your screen should start looping through the images in ```./UntappdPhotos/media/photos/```
+
+## [Coming Soon](#coming-soon)
+
+These are the things that haven't been addressed yet.
+
+* Pull images from an authenticated Untappd account.
+* Create service to autorun the script when the Raspberry Pi boots.
 
 ## [Very Helpful Example Code](#very-helpful-example-code)
 
