@@ -28,6 +28,7 @@ Note: for now it is necessary to manually copy photos into a local directory. Pu
 * [Raspberry Pi OS](#raspberrypi-os)
 * [HyperPixel Driver](#hyperpixel-driver)
 * [Python Project](#python-project)
+* [Photos](#photos)
 
 ### [Hardware](#hardware)
 
@@ -167,10 +168,18 @@ $ cd ~/
 $ git clone https://github.com/mptsolutions/UntappdPhotos.git
 ```
 
-If you are happy to have your photos live in ```./media/photos/```, and for them to rotate every 10 seconds, then you probably don't need to adjust anything. But you can verify all the configurable settings in ```configs.py```.
+If you are happy to have your photos live in ```./UntappdPhotos/media/photos/```, and for them to rotate every 10 seconds, then you probably don't need to adjust anything. But you can verify all the configurable settings in ```configs.py```.
 
 ```bash
 $ nano config.py
+```
+
+If you want to be able to use image files other than ```.bmp```, you'll need to install SDL2 components.
+
+```bash
+$ sudo apt install libsdl2-dev
+$ sudo apt install libsdl2-image-dev
+$ pip install pysdl2 pysdl2-image
 ```
 
 You will probably want to create a virtual environment to run in.
@@ -180,6 +189,10 @@ $ cd ~/
 $ python -m venv untappd_photos_env --system-site-packages
 ```
 
+### [Photos](#photos)
+
+Since I haven't sorted out API access to Untappd, you'll have to manually save the photos that you want to display.  But each one in the ```./UntappdPhotos/media/photos/``` directory (or somewhere else if you changed to location in the ```config.py```). All of the files need to be JPEG with a ```.jpg``` extension. No guarantees that just any old JPEG will be readable but the one's I downloaded for myself all worked.
+
 ## [Run it](#run-it)
 
 Just run the script.
@@ -187,7 +200,7 @@ Just run the script.
 ```bash
 $ cd ~/
 $ source untappd_photos_env/bin/activate
-$ python main.py
+$ python ./UntappdPhotos/main.py
 ```
 
 If you are doing all this rightfully through a remote ```SSH``` session, you'll probably need to manually set the display when you run the script.
@@ -195,8 +208,10 @@ If you are doing all this rightfully through a remote ```SSH``` session, you'll 
 ```bash
 $ cd ~/
 $ source untappd_photos_env/bin/activate
-$ DISPLAY=:0.0 python main.py
+$ DISPLAY=:0.0 python ./UntappdPhotos/main.py
 ```
+
+If all went well, your screen should start looping through the images in ```./UntappdPhotos/media/photos/```
 
 ## [Very Helpful Example Code](#very-helpful-example-code)
 
