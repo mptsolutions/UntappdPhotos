@@ -66,6 +66,13 @@ def display_image(screen, images, image_index):
 def fade_transition(screen, images, current_image_index, next_image_index, duration=1000):
     """
     Fade from current to next image over the given duration (milliseconds).
+
+    Args:
+        screen (pygame.Surface): The main display surface.
+        images (list): List of loaded images.
+        current_image_index (int): Index of the currently displayed image.
+        next_image_index (int): Index of the next image to display.
+        duration (int): Duration of the fade effect in milliseconds.
     """
     current_image = images[current_image_index]
     next_image = images[next_image_index]
