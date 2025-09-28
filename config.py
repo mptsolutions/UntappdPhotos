@@ -4,8 +4,10 @@ from logging.handlers import RotatingFileHandler
 from os import path, makedirs
 from sys import stdout
 
+SCRIPT_DIR = path.dirname(path.abspath(__file__))
+
 LOG_LEVEL = logging.DEBUG
-LOG_FILE = "./untappd_photos.log"
+LOG_FILE = path.join(SCRIPT_DIR, "untappd_photos.log")
 LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)-20s | %(message)s"
 LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 LOG_MAX_BYTES = 5 * 1024 * 1024  # 5 MB
@@ -16,7 +18,7 @@ SCREEN_WIDTH = 720
 SCREEN_HEIGHT = 720
 BACKGROUND_COLOR = (0, 0, 0)
 
-MEDIA_DIR = "./UntappdPhotos/media/photos/"
+MEDIA_DIR = path.join(SCRIPT_DIR, "media", "photos")
 
 if not path.exists(MEDIA_DIR):
     makedirs(MEDIA_DIR)
@@ -35,4 +37,4 @@ stream_handler = logging.StreamHandler(stream=stdout)
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
-logger.info("Configuration loaded successfully.")
+logger.info("CONFIG LOADED")
