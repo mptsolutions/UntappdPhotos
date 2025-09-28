@@ -63,6 +63,27 @@ def display_image(screen, images, image_index):
     display.update()
     logger.debug(f"SET IMAGE {image_index}: {filename}")
 
+def fade_transition(screen, images, current_image_index, next_image_index, duration=1000):
+    """
+    Fade from current to next image over the given duration (milliseconds).
+    """
+    current_image = images[current_image_index]
+    next_image = images[next_image_index]
+
+    clock = time.Clock()
+    start_time = time.get_ticks()
+    alpha_surface = current_image[0].copy()
+    for alpha in range(255, -1, -10):
+        screen.blit(current_image[0], current_image[1])
+        alpha_surface = next_image[0].copy()
+        alpha_surface.set_alpha(255 - alpha)
+        screen.blit(alpha_surface, next_image[1])
+        display.update()
+        clock.tick(60)
+        if time.get_ticks() - start_time > duration:
+            break
+    logger.debug(f"SET IMAGE {next_image_index}: {next_image[2]}")
+
 def main():
     """
     Main loop for the Untappd Photos display application.
@@ -96,11 +117,12 @@ def main():
         # Check if it's time to switch to the next image
         now = time.get_ticks()
         if now - image_time >= DISPLAY_DURATION:
-            current_image_index = current_image_index + 1
-            if current_image_index >= len(images):
-                current_image_index = 0
-            display_image(screen, images, current_image_index)
+            next_image_index = current_image_index + 1
+            if next_image_index >= len(images):
+                next_image_index = 0
+            fade_transition(screen, images, current_image_index, next_image_index)
             image_time = now
+            current_image_index = next_image_index
 
         sleep(0.1)  # Small delay to reduce CPU usage
     quit()
