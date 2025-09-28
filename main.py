@@ -22,6 +22,7 @@ def init_pygame():
     screen = display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), FULLSCREEN | DOUBLEBUF | NOFRAME | HWSURFACE)
     screen.fill(BACKGROUND_COLOR)
     display.update()
+    logger.debug("INITIALIZED PYGAME AND SCREEN")
     return screen
 
 def load_images_from_directory(directory=MEDIA_DIR):
@@ -41,9 +42,11 @@ def load_images_from_directory(directory=MEDIA_DIR):
                 cur_image = image.load(os.path.join(directory, filename)).convert()
                 cur_image_rect = cur_image.get_rect()
                 cur_image_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                logger.debug(f"LOADED IMAGE {filename}")
             except error as e:
                 logger.error(f"ERROR LOADING IMAGE {filename}: {e}")
             images.append((cur_image, cur_image_rect, filename))
+    logger.info(f"LOADED {len(images)} IMAGES FROM {directory}")
     return images
 
 def display_image(screen, images, image_index):
@@ -65,8 +68,6 @@ def main():
     Main loop for the Untappd Photos display application.
     Initializes pygame, loads images, and cycles through them at intervals.
     """
-    
-    logger.info("Starting Untappd Photos application.")
 
     # Initialize Pygame and get a screen object
     screen = init_pygame()
@@ -84,10 +85,12 @@ def main():
     running = True
     image_time = time.get_ticks()  # Track time for image switching
 
+    logger.info("STARTING MAIN LOOP")
     while running:
         # Handle quit and escape key events
         for cur_event in event.get():
             if cur_event.type == QUIT or cur_event.type == KEYDOWN and cur_event.key == K_ESCAPE:
+                logger.info("QUIT EVENT DETECTED")
                 running = False
 
         # Check if it's time to switch to the next image
@@ -101,6 +104,7 @@ def main():
 
         sleep(0.1)  # Small delay to reduce CPU usage
     quit()
+    logger.info("STOPPED MAIN LOOP")
 
 if __name__ == "__main__":
     main()
