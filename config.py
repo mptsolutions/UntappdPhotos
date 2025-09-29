@@ -18,7 +18,8 @@ SCREEN_WIDTH = 720
 SCREEN_HEIGHT = 720
 BACKGROUND_COLOR = (0, 0, 0)
 
-MEDIA_DIR = path.join(SCRIPT_DIR, "media", "photos")
+MEDIA_DIR = path.join(SCRIPT_DIR, "media")
+PHOTOS_DIR = path.join(MEDIA_DIR, "photos")
 
 if not path.exists(MEDIA_DIR):
     makedirs(MEDIA_DIR)
