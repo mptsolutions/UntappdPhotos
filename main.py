@@ -251,6 +251,7 @@ if __name__ in {"__main__", "__mp_main__"}:
     logger.info("STARTING NICEGUI")
     screen = init_pygame()
     
+    # Build the NiceGUI interface
     title_style = "w-full bg-blue-500 p-1 text-center shadow-lg rounded-lg text-white text-2xl italic font-extrabold;"
     ui.add_head_html('<style type="text/tailwindcss"> @layer components { .title-box { @apply ' + title_style + '} } </style>')
     ui.label('Untappd Photos: Control Panel').classes('title-box mb-4')
@@ -271,5 +272,10 @@ if __name__ in {"__main__", "__mp_main__"}:
             with thumb_row:
                 for thumb in get_image_thumbnails():
                     thumb.classes('hover:scale-105 transition-transform duration-200')
+    
+    # Start the slideshow by default
+    toggle_slideshow(screen)
+
+    # Start the NiceGUI UI
     ui.page_title('Untappd Photos: Control Panel')
     ui.run(native=False, show=False, dark=True)
