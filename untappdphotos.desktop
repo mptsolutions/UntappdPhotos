@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Untappd Photos
+Exec=/home/pi/untappd_photos_env/bin/python /home/pi/UntappdPhotos/main.py
