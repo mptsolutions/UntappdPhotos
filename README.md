@@ -220,7 +220,7 @@ If you want the show to start when the Raspberry Pi boots, copy the ```untappdph
 
 These are the things that haven't been addressed yet.
 
-* ~~Pull images from an authenticated Untappd account.~~ Untappd won't allow API use with signing a commercial agreement.
+* ~~Pull images from an authenticated Untappd account.~~ Untappd won't allow API use without signing a commercial agreement.
 
 ## [Very Helpful Example Code](#very-helpful-example-code)
 
