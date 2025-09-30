@@ -214,12 +214,13 @@ $ DISPLAY=:0.0 python ./UntappdPhotos/main.py
 
 If all went well, your screen should start looping through the images in ```./UntappdPhotos/media/photos/```
 
+If you want the show to start when the Raspberry Pi boots, copy the ```untappdphotos.desktop``` into the ```/home/pi/.config/autostart``` directory. The ```autostart``` directory might needs to be manually created first.
+
 ## [Coming Soon](#coming-soon)
 
 These are the things that haven't been addressed yet.
 
-* Pull images from an authenticated Untappd account.
-* Create service to autorun the script when the Raspberry Pi boots.
+* ~~Pull images from an authenticated Untappd account.~~ Untappd won't allow API use with signing a commercial agreement.
 
 ## [Very Helpful Example Code](#very-helpful-example-code)
 
