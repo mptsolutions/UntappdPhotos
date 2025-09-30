@@ -6,7 +6,7 @@ from sys import stdout
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
 
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.INFO
 LOG_FILE = path.join(SCRIPT_DIR, "untappd_photos.log")
 LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)-20s | %(message)s"
 LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
