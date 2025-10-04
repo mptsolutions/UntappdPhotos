@@ -180,6 +180,7 @@ def toggle_slideshow(screen):
         slideshow_running = False
         ui.notify("Slideshow stopped.")
         toggle_button.text = "Start Slideshow"
+    logger.debug(f"TOGGLED SLIDESHOW RUNNING: {slideshow_running}")
 
 def auto_slideshow_control():
     """
@@ -208,6 +209,7 @@ def reboot_click():
     Function to reboot the system.
     Not yet implemented
     """
+    logger.info("REBOOT CLICKED")
     ui.notify("Rebooting now...")
     app.shutdown()
     os.system("sudo reboot")
@@ -217,6 +219,7 @@ def quit_system():
     Function to quit the application.
     Not yet implemented
     """
+    logger.info("QUIT CLICKED")
     ui.notify("Quitting now...")
     app.shutdown()
     os.system("sudo shutdown -h now")
@@ -309,4 +312,4 @@ if __name__ in {"__main__", "__mp_main__"}:
 
     # Start the NiceGUI UI
     ui.page_title('Untappd Photos: Control Panel')
-    ui.run(native=False, show=False, dark=True)
+    ui.run(native=False, show=False, dark=True, reload=False)
