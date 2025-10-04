@@ -1,9 +1,10 @@
 import os
 import threading
-from config import logger, SCREEN_WIDTH, SCREEN_HEIGHT, MEDIA_DIR, PHOTOS_DIR, BACKGROUND_COLOR, DISPLAY_DURATION
+from config import logger, SCREEN_WIDTH, SCREEN_HEIGHT, MEDIA_DIR, PHOTOS_DIR, BACKGROUND_COLOR, DISPLAY_DURATION, AUTO_START_HOUR, AUTO_STOP_HOUR
 from time import sleep
 from nicegui import ui, app
 from nicegui.events import UploadEventArguments
+from datetime import datetime
 
 # Hide the default pygame support prompt
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
@@ -151,7 +152,7 @@ def slide_show(screen):
 
         sleep(0.1)  # Small delay to reduce CPU usage
     
-    logo = image.load(os.path.join(MEDIA_DIR, "logo.jpg")).convert()
+    logo = image.load(os.path.join(MEDIA_DIR, "blank.jpg")).convert()
     logo_rect = logo.get_rect()
     logo_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
     screen.blit(logo, logo_rect)
@@ -180,12 +181,36 @@ def toggle_slideshow(screen):
         ui.notify("Slideshow stopped.")
         toggle_button.text = "Start Slideshow"
 
+def auto_slideshow_control():
+    """
+    Function to start/stop the slideshow on a timer.
+
+    Args:
+        screen (pygame.Surface): The main display surface.
+    """
+    global slideshow_running
+    while True:
+        now = datetime.now()
+        hour = now.hour
+
+        # Start at 7am if not running
+        if hour == AUTO_START_HOUR and not slideshow_running:
+            ui.notify("Auto-starting slideshow at 7am")
+            ui.run_later(lambda: toggle_slideshow(screen))
+        # Stop at 10pm if running
+        elif hour == AUTO_STOP_HOUR and slideshow_running:
+            ui.notify("Auto-stopping slideshow at 10pm")
+            ui.run_later(lambda: toggle_slideshow(screen))
+        sleep(60)  # Check every minute
+
 def reboot_click():
     """
     Function to reboot the system.
     Not yet implemented
     """
     ui.notify("Rebooting now...")
+    app.shutdown()
+    os.system("sudo reboot")
 
 def quit_system():
     """
@@ -194,6 +219,7 @@ def quit_system():
     """
     ui.notify("Quitting now...")
     app.shutdown()
+    os.system("sudo shutdown -h now")
 
 def get_image_thumbnails():
     """
@@ -260,7 +286,7 @@ if __name__ in {"__main__", "__mp_main__"}:
             ui.label('Controls').classes('text-xl font-bold mb-2')
             toggle_button = ui.button("Start Slideshow", on_click=lambda: toggle_slideshow(screen)).classes('mb-2 w-full')
             ui.button("Quit", on_click=quit_system).classes('mb-2 w-full')
-            ui.button("Reboot System", on_click=reboot_click).classes('mb-2 w-full')
+            ui.button("Reboot", on_click=reboot_click).classes('mb-2 w-full')
             with ui.dialog().props('full-width') as dialog:
                 with ui.card():
                     content = ui.image().classes('w-full h-auto')
@@ -275,6 +301,11 @@ if __name__ in {"__main__", "__mp_main__"}:
     
     # Start the slideshow by default
     toggle_slideshow(screen)
+
+    # Start the slideshot scheduler
+    if AUTO_START_HOUR is not None and AUTO_STOP_HOUR is not None:
+        threading.Thread(target=auto_slideshow_control, daemon=True).start()
+        logger.info(f"STARTED AUTO SLIDESHOW CONTROL THREAD ({AUTO_START_HOUR}:00 to {AUTO_STOP_HOUR}:00)")
 
     # Start the NiceGUI UI
     ui.page_title('Untappd Photos: Control Panel')
