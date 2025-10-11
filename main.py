@@ -192,6 +192,7 @@ def adjust_display_brightness(pi, brightness):
     Args:
         pi (pigpio.pi): Raspberry Pi GPIO interface.
     """
+    global DEFAULT_BRIGHTNESS
     pi.set_PWM_dutycycle(BACKLIGHT_PIN, brightness) # brightness: 0-255
     DEFAULT_BRIGHTNESS = brightness
     logger.debug(f"ADJUSTED DISPLAY BRIGHTNESS TO: {brightness}")
