@@ -3,6 +3,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from os import path, makedirs
 from sys import stdout
+from datetime import time as dt_time
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
 
@@ -17,9 +18,11 @@ DISPLAY_DURATION = 10000  # in seconds
 SCREEN_WIDTH = 720
 SCREEN_HEIGHT = 720
 BACKGROUND_COLOR = (0, 0, 0)
+BACKLIGHT_PIN = 19
+DEFAULT_BRIGHTNESS = int(255*.75)  # 75% brightness
 
-AUTO_START_HOUR = 7  # 7 AM
-AUTO_STOP_HOUR = 22  # 10 PM
+AUTO_START_TIME = dt_time(7, 0)   # 7:00 AM
+AUTO_STOP_TIME  = dt_time(22, 0)  # 10:00 PM
 
 MEDIA_DIR = path.join(SCRIPT_DIR, "media")
 PHOTOS_DIR = path.join(MEDIA_DIR, "photos")
