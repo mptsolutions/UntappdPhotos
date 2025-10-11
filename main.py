@@ -1,6 +1,11 @@
 import os
 import threading
-from config import logger, SCREEN_WIDTH, SCREEN_HEIGHT, MEDIA_DIR, PHOTOS_DIR, BACKGROUND_COLOR, DISPLAY_DURATION, AUTO_START_HOUR, AUTO_STOP_HOUR
+import pigpio
+from config import (
+    logger, MEDIA_DIR, PHOTOS_DIR, BACKGROUND_COLOR,
+    SCREEN_WIDTH, SCREEN_HEIGHT, BACKLIGHT_PIN, DEFAULT_BRIGHTNESS,
+    DISPLAY_DURATION, AUTO_START_TIME, AUTO_STOP_TIME
+)
 from time import sleep
 from nicegui import ui, app
 from nicegui.events import UploadEventArguments
@@ -13,6 +18,7 @@ from pygame import (
     image, time, display, event, mouse, init, quit, error, transform
 )
 
+display_enabled = True
 slideshow_running = False
 slideshow_thread = None
 stop_event = threading.Event()
@@ -159,6 +165,37 @@ def slide_show(screen):
     display.update()
     logger.info("STOPPED SLIDESHOW LOOP")
 
+def toggle_display(pi):
+    """
+    Function to enable/disable display backlight on a timer.
+
+    Args:
+        pi (pigpio.pi): Raspberry Pi GPIO interface.
+    """
+    global display_enabled
+    if not display_enabled:
+        pi.set_PWM_dutycycle(BACKLIGHT_PIN, DEFAULT_BRIGHTNESS)
+        display_enabled = True
+        ui.notify("Display enabled.")
+        display_toggle_button.text = "Disable Display"
+    else:
+        pi.set_PWM_dutycycle(BACKLIGHT_PIN, 0)
+        display_enabled = False
+        ui.notify("Display disabled.")
+        display_toggle_button.text = "Enable Display"
+    logger.debug(f"TOGGLED DISPLAY ENABLED: {display_enabled}")
+
+def adjust_display_brightness(pi, brightness):
+    """
+    Function to adjust display backlight brightness.
+
+    Args:
+        pi (pigpio.pi): Raspberry Pi GPIO interface.
+    """
+    pi.set_PWM_dutycycle(BACKLIGHT_PIN, brightness) # brightness: 0-255
+    DEFAULT_BRIGHTNESS = brightness
+    logger.debug(f"ADJUSTED DISPLAY BRIGHTNESS TO: {brightness}")
+
 def toggle_slideshow(screen):
     """
     Function to start/stop the slideshow.
@@ -173,36 +210,37 @@ def toggle_slideshow(screen):
             slideshow_thread.start()
             slideshow_running = True
             ui.notify("Slideshow started.")
-        toggle_button.text = "Stop Slideshow"
+            slideshow_toggle_button.text = "Stop Slideshow"
     else:
         stop_event.set()
         slideshow_thread = None
         slideshow_running = False
         ui.notify("Slideshow stopped.")
-        toggle_button.text = "Start Slideshow"
+        slideshow_toggle_button.text = "Start Slideshow"
     logger.debug(f"TOGGLED SLIDESHOW RUNNING: {slideshow_running}")
 
-def auto_slideshow_control():
+def auto_display_control(pi):
     """
-    Function to start/stop the slideshow on a timer.
+    Function to enable/disable display backlight on a timer.
 
     Args:
-        screen (pygame.Surface): The main display surface.
+        pi (pigpio.pi): Raspberry Pi GPIO interface.
     """
-    global slideshow_running
-    while True:
-        now = datetime.now()
-        hour = now.hour
-
-        # Start at 7am if not running
-        if hour == AUTO_START_HOUR and not slideshow_running:
-            ui.notify("Auto-starting slideshow at 7am")
-            ui.run_later(lambda: toggle_slideshow(screen))
-        # Stop at 10pm if running
-        elif hour == AUTO_STOP_HOUR and slideshow_running:
-            ui.notify("Auto-stopping slideshow at 10pm")
-            ui.run_later(lambda: toggle_slideshow(screen))
-        sleep(60)  # Check every minute
+    logger.info(f"STARTING AUTO DISPLAY CONTROL THREAD ({AUTO_START_TIME.strftime('%H:%M')} to {AUTO_STOP_TIME.strftime('%H:%M')})")
+    try:
+        while True:
+            now = datetime.now().time()
+            # Enable display at configured time if not running
+            if now.hour == AUTO_START_TIME.hour and now.minute == AUTO_START_TIME.minute:
+                pi.set_PWM_dutycycle(BACKLIGHT_PIN, 255) # 255 for full brightness
+                logger.info(f"AUTO-ENABLED DISPLAY AT {AUTO_START_TIME.strftime('%H:%M')}")
+            # Disable display at configured time if running
+            elif now.hour == AUTO_STOP_TIME.hour and now.minute == AUTO_STOP_TIME.minute:
+                pi.set_PWM_dutycycle(BACKLIGHT_PIN, 0) # 0 for off
+                logger.info(f"AUTO-DISABLED SLIDESHOW AT {AUTO_STOP_TIME.strftime('%H:%M')}")
+            sleep(20)  # Check every 20 seconds
+    except Exception as e:
+        logger.error(f"ERROR IN AUTO DISPLAY CONTROL THREAD: {e}")
 
 def reboot_click():
     """
@@ -214,13 +252,14 @@ def reboot_click():
     app.shutdown()
     os.system("sudo reboot")
 
-def quit_system():
+def quit_system(pi):
     """
     Function to quit the application.
     Not yet implemented
     """
     logger.info("QUIT CLICKED")
     ui.notify("Quitting now...")
+    pi.stop()
     app.shutdown()
     os.system("sudo shutdown -h now")
 
@@ -279,6 +318,8 @@ async def handle_thumbnail_click(filename):
 if __name__ in {"__main__", "__mp_main__"}:
     logger.info("STARTING NICEGUI")
     screen = init_pygame()
+    pi = pigpio.pi()
+    pi.set_PWM_dutycycle(BACKLIGHT_PIN, DEFAULT_BRIGHTNESS)
     
     # Build the NiceGUI interface
     title_style = "w-full bg-blue-500 p-1 text-center shadow-lg rounded-lg text-white text-2xl italic font-extrabold;"
@@ -287,9 +328,13 @@ if __name__ in {"__main__", "__mp_main__"}:
     with ui.row().classes('w-full h-screen flex-row flex-nowrap items-start'):
         with ui.column().classes('w-1/5 h-screen items-start p-4'):
             ui.label('Controls').classes('text-xl font-bold mb-2')
-            toggle_button = ui.button("Start Slideshow", on_click=lambda: toggle_slideshow(screen)).classes('mb-2 w-full')
-            ui.button("Quit", on_click=quit_system).classes('mb-2 w-full')
-            ui.button("Reboot", on_click=reboot_click).classes('mb-2 w-full')
+            ui.label('Brightness').classes('mt-4 mb-2 font-bold')
+            brightness_slider = ui.slider(min=0, max=255, value=DEFAULT_BRIGHTNESS)
+            brightness_slider.on_value_change(lambda e: adjust_display_brightness(pi, int(e.value)))
+            slideshow_toggle_button = ui.button("Start Slideshow", on_click=lambda: toggle_slideshow(screen)).classes('mb-2 w-full')
+            display_toggle_button = ui.button("Disable Display", on_click=lambda: toggle_display(pi)).classes('mb-2 w-full')
+            ui.button("Quit Slideshow", on_click=lambda: quit_system(pi)).classes('mb-2 w-full')
+            ui.button("Reboot System", on_click=reboot_click).classes('mb-2 w-full')
             with ui.dialog().props('full-width') as dialog:
                 with ui.card():
                     content = ui.image().classes('w-full h-auto')
@@ -306,9 +351,8 @@ if __name__ in {"__main__", "__mp_main__"}:
     toggle_slideshow(screen)
 
     # Start the slideshot scheduler
-    if AUTO_START_HOUR is not None and AUTO_STOP_HOUR is not None:
-        threading.Thread(target=auto_slideshow_control, daemon=True).start()
-        logger.info(f"STARTED AUTO SLIDESHOW CONTROL THREAD ({AUTO_START_HOUR}:00 to {AUTO_STOP_HOUR}:00)")
+    if AUTO_START_TIME is not None and AUTO_STOP_TIME is not None:
+        threading.Thread(target=auto_display_control, args=(pi,), daemon=True).start()
 
     # Start the NiceGUI UI
     ui.page_title('Untappd Photos: Control Panel')
